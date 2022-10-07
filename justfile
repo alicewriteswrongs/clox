@@ -5,3 +5,6 @@ build:
 
 fmt:
     clang-format -i src/*.c src/*.h
+
+run: build
+    ./main
