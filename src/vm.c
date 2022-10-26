@@ -7,9 +7,28 @@
 
 VM vm;
 
-void initVM() {}
+static void resetStack() {
+  // set it to point at the first frame
+  vm.stackTop = vm.stack;
+}
+
+void initVM() { resetStack(); }
 
 void freeVM() {}
+
+void push(Value value) {
+  // dereference point, set that spot in memory to that value
+  *vm.stackTop = value;
+  // increment addres to point at the next spot
+  vm.stackTop++;
+}
+
+Value pop() {
+  // decrement the pointer
+  vm.stackTop--;
+  // dereference it to get the value there!
+  return *vm.stackTop;
+}
 
 static InterpretResult run() {
 #define READ_BYTE() (*vm.ip++)
@@ -17,6 +36,13 @@ static InterpretResult run() {
 
   for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
+    printf("          ");
+    for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
+      printf("[ ");
+      printValue(*slot);
+      printf(" ]");
+    }
+    printf("\n");
     // disassemble the current instruction
     //
     // some pointer pointer math here - `vm.chunk->code`
@@ -29,11 +55,12 @@ static InterpretResult run() {
     switch (instruction = READ_BYTE()) {
       case OP_CONSTANT: {
         Value constant = READ_CONSTANT();
-        printValue(constant);
-        printf("\n");
+        push(constant);
         break;
       }
       case OP_RETURN: {
+        printValue(pop());
+        printf("\n");
         return INTERPRET_OK;
       }
     }
