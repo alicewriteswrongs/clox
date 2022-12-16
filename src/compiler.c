@@ -11,7 +11,7 @@ void compile(const char* source) {
   int line = -1;
 
   for (;;) {
-    Token toekn = scanToken();
+    Token token = scanToken();
     if (token.line != line) {
       printf("%4d ", token.line);
       line = token.line;
